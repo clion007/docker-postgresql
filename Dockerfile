@@ -54,11 +54,7 @@ RUN --mount=type=cache,target=/var/cache/apk \
         make \
         openldap-dev \
         openssl-dev \
-        perl-dev \
-        perl-ipc-run \
-        perl-utils \
-        python3-dev \
-        tcl-dev \
+        perl \
         util-linux-dev \
         zlib-dev \
         icu-dev \
@@ -79,7 +75,6 @@ RUN --mount=type=cache,target=/var/cache/apk \
         --enable-option-checking=fatal \
         --build="$gnuArch" \
         --enable-integer-datetimes \
-        --enable-tap-tests \
         --disable-rpath \
         --with-uuid=e2fs \
         --with-pgport=5432 \
@@ -96,9 +91,6 @@ RUN --mount=type=cache,target=/var/cache/apk \
         --with-libxslt \
         --with-lz4 \
         --with-openssl \
-        --with-perl \
-        --with-python \
-        --with-tcl \
         --with-zstd \
     ; \
     make -j "$(nproc)" world-bin; \
