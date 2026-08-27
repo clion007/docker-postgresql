@@ -143,18 +143,19 @@ RUN set -eux; \
         coreutils \
     ; \
     \
-    # detect the ICU version shipped by this Alpine release (follows latest)
-    apk add --no-cache icu-libs; \
+    # detect the ICU version shipped by this Alpine release (follows latest).
+    # icu-libs alone has no /usr/share/icu; icu-data-en provides the initial
+    # /usr/share/icu/<ver>/icudt*.dat (en only) that is replaced below.
+    apk add --no-cache icu-libs icu-data-en; \
     icu_ver="$(ls /usr/share/icu/ | head -n1)"; \
     test -n "$icu_ver"; \
     echo "building ICU data for version: $icu_ver"; \
     \
     # download the matching ICU source tarball.
-    # ICU >= 78 uses dot tags (release-78.1) and drops the *-src.tgz asset,
-    # so use the tag-based Source-code tarball (dot tag first, dash fallback).
-    icu_dot="${icu_ver//-/.}"; \
+    # the Alpine data dir is the dot form "78.1" which matches the ICU GitHub
+    # tag "release-78.1" (ICU >= 78); keep a dash fallback for older releases.
     icu_dash="${icu_ver//./-}"; \
-    (wget -O /tmp/icu-src.tgz "https://github.com/unicode-org/icu/archive/refs/tags/release-${icu_dot}.tar.gz" \
+    (wget -O /tmp/icu-src.tgz "https://github.com/unicode-org/icu/archive/refs/tags/release-${icu_ver}.tar.gz" \
         || wget -O /tmp/icu-src.tgz "https://github.com/unicode-org/icu/archive/refs/tags/release-${icu_dash}.tar.gz"); \
     test -s /tmp/icu-src.tgz; \
     \
@@ -177,8 +178,6 @@ RUN set -eux; \
     cd /usr/src/icu/source; \
     ICU_DATA_FILTER_FILE=/tmp/filters.json \
     ./runConfigureICU Linux \
-        --enable-static \
-        --disable-shared \
         --disable-samples \
         --disable-tests \
         --disable-icuio \
@@ -188,10 +187,10 @@ RUN set -eux; \
     ; \
     make -j "$(nproc)"; \
     \
-    # replace Alpine's en-only data (installed with icu-libs) with the slim en+zh bundle
+    # replace Alpine's en-only data (installed with icu-data-en) with the slim en+zh bundle
     icu_dat="$(find /usr/share/icu -name 'icudt*.dat' | head -n1)"; \
     test -n "$icu_dat"; \
-    cp source/data/out/icudt*.dat "$icu_dat"; \
+    cp data/out/icudt*.dat "$icu_dat"; \
     ls -lh "$icu_dat" \
     ;
 
