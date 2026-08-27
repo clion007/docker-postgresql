@@ -175,7 +175,8 @@ RUN cat > /tmp/filters.json <<'EOF'
 EOF
 
 RUN set -eux; \
-    cd /usr/src/icu/source; \
+    # the release tarball is a monorepo; ICU4C sources live under icu4c/source
+    cd /usr/src/icu/icu4c/source; \
     ICU_DATA_FILTER_FILE=/tmp/filters.json \
     ./runConfigureICU Linux \
         --disable-samples \
