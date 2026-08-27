@@ -13,6 +13,9 @@ on:
 jobs:
   PostgreSQL_Publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read   # checkout
+      actions: write   # gha build cache + delete workflow runs
 
     steps:
     - name: Checkout
@@ -24,38 +27,23 @@ jobs:
     - name: Resolve PostgreSQL version
       id: getVersion
       run: |
-        # current stable major from official (used to decide whether to refresh the "latest" tag)
-        CURRENT_MAJOR=$(curl -fsSL https://www.postgresql.org/versions.json \
-          | python3 -c "import sys,json; d=[x for x in json.load(sys.stdin) if x.get('current')]; print(d[0]['major'] if d else '')")
-        if [ -n "${{ inputs.PG_VERSION }}" ]; then
-          PG_VERSION="${{ inputs.PG_VERSION }}"
-        elif [ -n "${{ github.event.client_payload.pg_version }}" ]; then
-          PG_VERSION="${{ github.event.client_payload.pg_version }}"
-        else
+        # version from workflow input, otherwise the official latest stable via API
+        PG_VERSION="${{ inputs.PG_VERSION }}"
+        if [ -z "$PG_VERSION" ]; then
           PG_VERSION=$(curl -fsSL https://www.postgresql.org/versions.json \
-            | python3 -c "import sys,json; d=[x for x in json.load(sys.stdin) if x.get('current')]; print(f\"{d[0]['major']}.{d[0]['latestMinor']}\" if d else '')")
+            | jq -r '.[] | select(.current == true) | "\(.major).\(.latestMinor)"')
         fi
-        if [ -z "$PG_VERSION" ] || [ -z "$CURRENT_MAJOR" ]; then
-          echo "ERROR: unable to resolve PostgreSQL version" >&2
-          exit 1
-        fi
+        [ -n "$PG_VERSION" ] || { echo "ERROR: unable to resolve PostgreSQL version" >&2; exit 1; }
         PG_MAJOR=${PG_VERSION%%.*}
         echo "pgVersion=$PG_VERSION" >> $GITHUB_OUTPUT
         echo "pgMajor=$PG_MAJOR" >> $GITHUB_OUTPUT
-        # build the tag list; only refresh "latest" when building the current stable major
-        TAGS="clion007/postgresql:${PG_MAJOR}
+        TAGS="clion007/postgresql:latest
         clion007/postgresql:${PG_VERSION}
-        registry.cn-chengdu.aliyuncs.com/clion/postgresql:${PG_MAJOR}
+        registry.cn-chengdu.aliyuncs.com/clion/postgresql:latest
         registry.cn-chengdu.aliyuncs.com/clion/postgresql:${PG_VERSION}"
-        if [ "$PG_MAJOR" = "$CURRENT_MAJOR" ]; then
-          TAGS="${TAGS}
-        clion007/postgresql:latest
-        registry.cn-chengdu.aliyuncs.com/clion/postgresql:latest"
-        fi
         echo "tags<<EOF" >> $GITHUB_OUTPUT
         echo "$TAGS" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
-        echo "Resolved: PostgreSQL $PG_VERSION (major $PG_MAJOR) - latest tag: $([ "$PG_MAJOR" = "$CURRENT_MAJOR" ] && echo yes || echo no)"
 
     - name: Login to Docker Hub
       uses: docker/login-action@v4
