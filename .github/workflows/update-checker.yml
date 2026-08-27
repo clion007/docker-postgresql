@@ -1,0 +1,49 @@
+# Description: PostgreSQL latest stable version update checker
+
+name: PostgreSQL Update Checker
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: 0 */12 * * *
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Get latest stable version of PostgreSQL
+      id: getVersion
+      run: |
+        version=$(curl -fsSL https://www.postgresql.org/versions.json \
+          | python3 -c "import sys,json; d=[x for x in json.load(sys.stdin) if x.get('current')]; print(f\"{d[0]['major']}.{d[0]['latestMinor']}\" if d else '')")
+        if [ -z "$version" ]; then
+          echo "ERROR: unable to get the latest PostgreSQL version" >&2
+          exit 1
+        fi
+        echo "latestVersion=$version" >> $GITHUB_OUTPUT
+
+    - name: Compare with last built version
+      id: cacheVersion
+      uses: actions/cache@v6
+      with:
+        path: .pgVersion
+        key: ${{ steps.getVersion.outputs.latestVersion }}
+
+    - name: Save new version
+      if: steps.cacheVersion.outputs.cache-hit != 'true'
+      run: |
+        echo ${{ steps.getVersion.outputs.latestVersion }} | tee .pgVersion
+
+    - name: Trigger build
+      if: steps.cacheVersion.outputs.cache-hit != 'true'
+      uses: peter-evans/repository-dispatch@v4
+      with:
+        event-type: PostgreSQL Image Update
+        client-payload: '{"pg_version": "${{ steps.getVersion.outputs.latestVersion }}"}'
+
+    - name: Delete workflow runs
+      uses: Mattraks/delete-workflow-runs@v2
+      with:
+        retain_days: 0
+        keep_minimum_runs: 2

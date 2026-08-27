@@ -1,0 +1,46 @@
+#!/bin/sh
+set -e
+
+# Default values (postgres uid/gid 70 is the standard for Alpine)
+PUID=${PUID:-70}
+PGID=${PGID:-70}
+UMASK=${UMASK:-022}
+TZ=${TZ:-Asia/Shanghai}
+
+# set timezone
+ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime
+echo "${TZ}" > /etc/timezone
+
+# apply umask
+umask ${UMASK}
+
+echo "Starting PostgreSQL with PUID=$PUID, PGID=$PGID, TZ=$TZ"
+
+# adjust the postgres user/group ids
+if ! getent group "$PGID" > /dev/null; then
+    echo "Changing postgres group GID from $(getent group postgres | cut -d: -f3) to $PGID"
+    groupmod -g "$PGID" postgres
+else
+    existing_group=$(getent group "$PGID" | cut -d: -f1)
+    usermod -g "$existing_group" postgres
+fi
+if [ "$(id -u postgres)" != "$PUID" ]; then
+    echo "Changing postgres user UID from $(id -u postgres) to $PUID"
+    usermod -u "$PUID" -g "$PGID" postgres
+fi
+
+# ensure data/socket/initdb directories exist and are owned by postgres
+mkdir -p /var/lib/postgresql /var/run/postgresql /docker-entrypoint-initdb.d
+chown -R postgres:postgres /var/lib/postgresql /var/run/postgresql /docker-entrypoint-initdb.d
+
+# first arg is `--some-option`
+if [ "${1#-}" != "$1" ]; then
+    set -- postgres "$@"
+fi
+
+# allow the container to be started with `--user`
+if [ "$1" = 'postgres' ] && [ "$(id -u)" = '0' ]; then
+    exec su-exec postgres /usr/local/bin/docker-entrypoint.sh "$@"
+fi
+
+exec "$@"
