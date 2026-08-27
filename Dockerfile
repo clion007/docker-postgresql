@@ -149,11 +149,13 @@ RUN set -eux; \
     test -n "$icu_ver"; \
     echo "building ICU data for version: $icu_ver"; \
     \
-    # download the matching ICU source (new dot format, then legacy dash format)
-    icu_major="${icu_ver%%.*}"; \
-    icu_minor="${icu_ver#*.}"; \
-    (wget -O /tmp/icu-src.tgz "https://github.com/unicode-org/icu/releases/download/release-$icu_ver/icu4c-$icu_ver-src.tgz" \
-        || wget -O /tmp/icu-src.tgz "https://github.com/unicode-org/icu/releases/download/release-$icu_major-$icu_minor/icu4c-${icu_major}_${icu_minor}-src.tgz"); \
+    # download the matching ICU source tarball.
+    # ICU >= 78 uses dot tags (release-78.1) and drops the *-src.tgz asset,
+    # so use the tag-based Source-code tarball (dot tag first, dash fallback).
+    icu_dot="${icu_ver//-/.}"; \
+    icu_dash="${icu_ver//./-}"; \
+    (wget -O /tmp/icu-src.tgz "https://github.com/unicode-org/icu/archive/refs/tags/release-${icu_dot}.tar.gz" \
+        || wget -O /tmp/icu-src.tgz "https://github.com/unicode-org/icu/archive/refs/tags/release-${icu_dash}.tar.gz"); \
     test -s /tmp/icu-src.tgz; \
     \
     mkdir -p /usr/src/icu; \

@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>postgresql</Name>
+  <Repository>registry.cn-chengdu.aliyuncs.com/clion/postgresql</Repository>
+  <Registry/>
+  <Network>br0</Network>
+  <MyIP>192.168.101.28</MyIP>
+  <MyMAC/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/clion007/docker-postgresql/issues/new/choose</Support>
+  <Project>https://github.com/clion007/docker-postgresql</Project>
+  <ReadMe/>
+  <Overview>PostgreSQL is a powerful, open source object-relational database system with over 35 years of active development that has earned it a strong reputation for reliability, feature robustness, and performance. This image is built on the latest Alpine Linux, ships a slim en+zh ICU bundle for Chinese collation, defaults to TZ Asia/Shanghai, and automatically tracks the latest stable PostgreSQL release.</Overview>
+  <Category>Network:Management Productivity: Tools:Utilities</Category>
+  <WebUI/>
+  <TemplateURL>https://raw.githubusercontent.com/clion007/docker-postgresql/main/unraid/template.xml</TemplateURL>
+  <Icon>https://www.postgresql.org/media/img/about/pgElephant.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled>1787754937</DateInstalled>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="Port: PostgreSQL access port" Target="5432" Default="5432" Mode="tcp" Description="PostgreSQL TCP connection port." Type="Port" Display="always" Required="true" Mask="false">5432</Config>
+  <Config Name="Path: /var/lib/postgresql" Target="/var/lib/postgresql" Default="/mnt/user/appdata/postgresql" Mode="rw" Description="PostgreSQL data storage location. A single mount here enables pg_upgrade --link on image upgrade." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/postgresql</Config>
+  <Config Name="Variable: POSTGRES_PASSWORD" Target="POSTGRES_PASSWORD" Default="" Mode="{3}" Description="Initial superuser password (required on first init)." Type="Variable" Display="always" Required="true" Mask="false">test</Config>
+  <Config Name="Variable: POSTGRES_USER" Target="POSTGRES_USER" Default="" Mode="{3}" Description="Initial superuser name (default: postgres)." Type="Variable" Display="always" Required="false" Mask="false">test</Config>
+  <Config Name="Variable: POSTGRES_DB" Target="POSTGRES_DB" Default="" Mode="{3}" Description="Initial database name (default: same as POSTGRES_USER)." Type="Variable" Display="always" Required="false" Mask="false">test</Config>
+  <Config Name="PUID" Target="PUID" Default="70" Mode="{3}" Description="User ID for the postgres user (default: 70, Alpine standard)." Type="Variable" Display="advanced" Required="false" Mask="false">70</Config>
+  <Config Name="PGID" Target="PGID" Default="70" Mode="{3}" Description="Group ID for the postgres group (default: 70, Alpine standard)." Type="Variable" Display="advanced" Required="false" Mask="false">70</Config>
+  <Config Name="UMASK" Target="UMASK" Default="022" Mode="{3}" Description="Control permission bits for newly created files (default: 022)." Type="Variable" Display="advanced" Required="false" Mask="false">022</Config>
+  <Config Name="TZ" Target="TZ" Default="Asia/Shanghai" Mode="{3}" Description="Specify timezone (default: Asia/Shanghai)." Type="Variable" Display="advanced" Required="false" Mask="false">Asia/Shanghai</Config>
+</Container>
