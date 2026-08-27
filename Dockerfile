@@ -158,10 +158,11 @@ RUN set -eux; \
     \
     mkdir -p /usr/src/icu; \
     tar -zxf /tmp/icu-src.tgz -C /usr/src/icu --strip-components 1; \
-    rm -f /tmp/icu-src.tgz; \
-    \
-    # keep only the en and zh (all script/region variants) locale data
-    cat > /tmp/filters.json <<'EOF'
+    rm -f /tmp/icu-src.tgz \
+    ;
+
+# keep only the en and zh (all script/region variants) locale data
+RUN cat > /tmp/filters.json <<'EOF'
 {
   "localeFilter": {
     "filterType": "language",
@@ -169,7 +170,8 @@ RUN set -eux; \
   }
 }
 EOF
-    \
+
+RUN set -eux; \
     cd /usr/src/icu/source; \
     ICU_DATA_FILTER_FILE=/tmp/filters.json \
     ./runConfigureICU Linux \
