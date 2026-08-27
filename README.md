@@ -24,7 +24,7 @@ This image is source-built on the latest Alpine and optimized for a minimal foot
 
 | Item | This image | Official postgres:18-alpine |
 | :--- | :--- | :--- |
-| Image size (uncompressed) | ~80 MB | ~500 MB |
+| Image size (uncompressed) | ~80 MB | ~300 MB |
 | JIT / LLVM | Not included | Included (speeds up complex queries at a large size cost) |
 | ICU data | Custom-built en + zh | `icu-data-full` (all languages) |
 | Procedural languages | No plperl / plpython / pltcl | Built, but their runtime libraries are not shipped either |
