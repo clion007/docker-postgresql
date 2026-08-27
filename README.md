@@ -7,7 +7,7 @@
 [![Image Size](https://img.shields.io/docker/image-size/clion007/postgresql/latest)](https://hub.docker.com/r/clion007/postgresql)
 
 <div align="center">
-  <img src="https://www.postgresql.org/media/img/about/pgElephant.png" alt="PostgreSQL Logo" width="280" height="280">
+  <img src="https://www.postgresql.org/media/img/about/press/elephant.png" alt="PostgreSQL Logo" width="280" height="280">
   <br><br>
   <strong>The World's Most Advanced Open Source Relational Database</strong>
 </div>
@@ -17,6 +17,21 @@
 PostgreSQL is a powerful, open source object-relational database system with over 35 years of active development that has earned it a strong reputation for reliability, feature robustness, and performance.
 
 This clion007/postgresql docker image is built from source on the latest Alpine Linux with a slim footprint. It ships a custom-compiled en+zh ICU bundle so Chinese text sorts and collates correctly without the full ICU data set, defaults to the `Asia/Shanghai` timezone, and automatically tracks the latest stable PostgreSQL release. The image publishes to Docker Hub (`clion007/postgresql`) and Alibaba Cloud (`registry.cn-chengdu.aliyuncs.com/clion/postgresql`).
+
+## 📦 Differences from the Official Image
+
+This image is source-built on the latest Alpine and optimized for a minimal footprint. Compared to the official `postgres:18-alpine`:
+
+| Item | This image | Official postgres:18-alpine |
+| :--- | :--- | :--- |
+| Image size (uncompressed) | ~80 MB | ~500 MB |
+| JIT / LLVM | Not included | Included (speeds up complex queries at a large size cost) |
+| ICU data | Custom-built en + zh | `icu-data-full` (all languages) |
+| Procedural languages | No plperl / plpython / pltcl | Built, but their runtime libraries are not shipped either |
+| Base image | `clion007/alpine` | `alpine` |
+| Default timezone | `Asia/Shanghai` | `UTC` |
+| Runtime user | `PUID` / `PGID` adjustable (default 70) | Fixed `postgres` (70) |
+| Init logic | `POSTGRES_*` + initdb scripts + `PUID` / `PGID` / `UMASK` / `TZ` | `POSTGRES_*` + initdb scripts |
 
 ## 🚀 Application Setup
 

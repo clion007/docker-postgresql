@@ -15,7 +15,7 @@
   <Category>Network:Management Productivity: Tools:Utilities</Category>
   <WebUI/>
   <TemplateURL>https://raw.githubusercontent.com/clion007/docker-postgresql/main/unraid/template.xml</TemplateURL>
-  <Icon>https://www.postgresql.org/media/img/about/pgElephant.png</Icon>
+  <Icon>https://www.postgresql.org/media/img/about/press/elephant.png</Icon>
   <ExtraParams/>
   <PostArgs/>
   <CPUset/>
