@@ -14,7 +14,7 @@ jobs:
   PostgreSQL_Publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: read   # checkout
+      contents: write  # checkout + create version tag
       actions: write   # gha build cache + delete workflow runs
 
     steps:
@@ -78,3 +78,17 @@ jobs:
       with:
         retain_days: 0
         keep_minimum_runs: 2
+
+    # tag every release (e.g. pg-18.6) so the repo stays active and the
+    # scheduled update-checker cron is not disabled after 60 days of inactivity
+    - name: Create version tag
+      run: |
+        TAG="pg-${{ steps.getVersion.outputs.pgVersion }}"
+        if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+          echo "Tag $TAG already exists, skipping"
+        else
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "$TAG"
+          git push origin "$TAG"
+        fi
