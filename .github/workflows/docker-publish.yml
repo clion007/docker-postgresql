@@ -65,6 +65,8 @@ jobs:
         file: Dockerfile
         context: .
         push: true
+        provenance: false
+        sbom: false
         build-args: |
           PG_VERSION=${{ steps.getVersion.outputs.pgVersion }}
           PG_MAJOR=${{ steps.getVersion.outputs.pgMajor }}
