@@ -71,6 +71,7 @@ jobs:
         tags: ${{ steps.getVersion.outputs.tags }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+        outputs: type=image,name=target,oci-mediatypes=false
 
     - name: Delete workflow runs
       uses: Mattraks/delete-workflow-runs@v2
